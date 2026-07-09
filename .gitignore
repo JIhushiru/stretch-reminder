@@ -1,0 +1,5 @@
+CLAUDE.md
+bin/
+obj/
+dist/
+*.user
