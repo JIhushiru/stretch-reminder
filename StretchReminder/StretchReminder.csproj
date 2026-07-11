@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="app.ico" LogicalName="StretchReminder.app.ico" />
+    <EmbeddedResource Include="chime.wav" LogicalName="StretchReminder.chime.wav" />
   </ItemGroup>
 
 </Project>

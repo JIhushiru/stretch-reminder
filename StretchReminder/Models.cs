@@ -37,6 +37,12 @@ public class AppConfig
     public bool WaterEnabled { get; set; } = true;
     public int WaterIntervalMinutes { get; set; } = 60;
 
+    /// <summary>Play a chime when a stretch/workout popup appears.</summary>
+    public bool SoundEnabled { get; set; } = true;
+
+    /// <summary>Path to a custom .wav to play on reminders. Empty = bundled default chime.</summary>
+    public string SoundFilePath { get; set; } = "";
+
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public ThemeKind Theme { get; set; } = ThemeKind.System;
 

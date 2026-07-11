@@ -37,7 +37,7 @@ public class MainForm : Form
         FormBorderStyle = FormBorderStyle.FixedSingle;
         MaximizeBox = false;
         StartPosition = FormStartPosition.CenterScreen;
-        ClientSize = new Size(380, 360);
+        ClientSize = new Size(380, 404);
         BackColor = p.WindowBack;
         HandleCreated += (_, _) => Theme.ApplyTitleBar(this);
 
@@ -170,20 +170,32 @@ public class MainForm : Form
             _ctx.SetWaterEnabled(_chkWater.Checked);
         };
 
+        var btnSound = new Button
+        {
+            Text = "Reminder sound…",
+            Bounds = new Rectangle(110, 320, 160, 32),
+            FlatStyle = FlatStyle.Flat,
+            BackColor = p.ButtonSecondaryBack,
+            ForeColor = p.ButtonSecondaryFore,
+            Font = new Font("Segoe UI", 9F),
+        };
+        btnSound.FlatAppearance.BorderColor = p.ButtonBorder;
+        btnSound.Click += (_, _) => _ctx.OpenSoundSettings();
+
         var lblHint = new Label
         {
             Text = "Close or minimize hides to the tray — Exit quits fully.",
             Font = new Font("Segoe UI", 8.25F),
             ForeColor = p.TextMuted,
             TextAlign = ContentAlignment.MiddleCenter,
-            Bounds = new Rectangle(0, 328, 380, 20),
+            Bounds = new Rectangle(0, 372, 380, 20),
         };
 
         Controls.AddRange(new Control[]
         {
             _lblCountdown, _lblNext, _btnPause, _btnNow, btnExit,
             lblProgram, _comboProgram, lblInterval, _comboInterval,
-            _lblBmi, btnProfile, _chkWater, lblHint,
+            _lblBmi, btnProfile, _chkWater, btnSound, lblHint,
         });
 
         ResumeLayout(false);

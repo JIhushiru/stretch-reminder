@@ -24,6 +24,7 @@ public class TrayAppContext : ApplicationContext
     private readonly ToolStripMenuItem _menuInterval;
     private readonly ToolStripMenuItem _menuProgram;
     private readonly ToolStripMenuItem _menuWater;
+    private readonly ToolStripMenuItem _menuSound;
     private readonly ToolStripMenuItem _menuTheme;
     private readonly ToolStripMenuItem _menuAutoStart;
 
@@ -63,6 +64,11 @@ public class TrayAppContext : ApplicationContext
             Checked = _config.WaterEnabled,
         };
 
+        _menuSound = new ToolStripMenuItem("Sound on reminder", null, (_, _) => SetSoundEnabled(!_config.SoundEnabled))
+        {
+            Checked = _config.SoundEnabled,
+        };
+
         _menuTheme = new ToolStripMenuItem("Theme");
         _menuTheme.DropDownItems.Add(
             new ToolStripMenuItem("System default", null, (_, _) => SetTheme(ThemeKind.System)));
@@ -85,6 +91,8 @@ public class TrayAppContext : ApplicationContext
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add(new ToolStripMenuItem("Height && weight…", null, (_, _) => OpenProfile()));
         menu.Items.Add(_menuWater);
+        menu.Items.Add(_menuSound);
+        menu.Items.Add(new ToolStripMenuItem("Reminder sound…", null, (_, _) => OpenSoundSettings()));
         menu.Items.Add(_menuTheme);
         menu.Items.Add(_menuAutoStart);
         menu.Items.Add(new ToolStripSeparator());
@@ -179,6 +187,13 @@ public class TrayAppContext : ApplicationContext
         UpdateUi();
     }
 
+    public void SetSoundEnabled(bool enabled)
+    {
+        _config.SoundEnabled = enabled;
+        Storage.SaveConfig(_config);
+        _menuSound.Checked = enabled;
+    }
+
     public void SetTheme(ThemeKind theme)
     {
         _config.Theme = theme;
@@ -208,6 +223,7 @@ public class TrayAppContext : ApplicationContext
     }
 
     private ProfileForm? _profileDialog;
+    private SoundForm? _soundDialog;
 
     public void OpenProfile()
     {
@@ -234,6 +250,33 @@ public class TrayAppContext : ApplicationContext
         finally
         {
             _profileDialog = null;
+        }
+    }
+
+    public void OpenSoundSettings()
+    {
+        if (_soundDialog is { IsDisposed: false })
+        {
+            _soundDialog.Activate(); // tray menu stays live during ShowDialog — don't stack a second dialog
+            return;
+        }
+
+        using var dialog = new SoundForm(_config.SoundEnabled, _config.SoundFilePath) { Icon = _appIcon };
+        _soundDialog = dialog;
+        try
+        {
+            var owner = !_mainForm.IsDisposed && _mainForm.Visible ? _mainForm : null;
+            if (dialog.ShowDialog(owner) == DialogResult.OK)
+            {
+                _config.SoundEnabled = dialog.SoundEnabled;
+                _config.SoundFilePath = dialog.SoundFilePath;
+                Storage.SaveConfig(_config);
+                _menuSound.Checked = _config.SoundEnabled;
+            }
+        }
+        finally
+        {
+            _soundDialog = null;
         }
     }
 
@@ -353,6 +396,8 @@ public class TrayAppContext : ApplicationContext
             }
             UpdateUi();
         };
+        if (_config.SoundEnabled)
+            ReminderSound.Play(_config.SoundFilePath);
         _activeSession.Show();
         UpdateUi();
     }
